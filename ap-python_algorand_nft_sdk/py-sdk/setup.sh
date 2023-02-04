@@ -27,18 +27,4 @@ ADDR3=$(./sandbox goal account list | awk 'FNR==3{ print $2 }')
 
 cd ../
 
-#install py-algorand-sdk
-
-#create virtual environment and activate it
-
-echo "creating a virtual environment called venv"
-python3 -m venv venv
-
-echo "activating the virtual envvironment"
-source venv/bin/activate
-
-echo "installing python algorand sdk"
-pip3 install py-algorand-sdk
-
 echo "all dependencies installed"
-echo "check example-devnet.py for usage"
