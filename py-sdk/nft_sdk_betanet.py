@@ -2,10 +2,10 @@ import base64
 import json
 from algosdk.v2client import algod, indexer
 from algosdk import transaction, account, mnemonic
-from config import algod_token, indexer_token, algod_address_testnet, indexer_address_testnet, admin_address, admin_key
+from config import algod_token, indexer_token, algod_address_betanet, indexer_address_betanet, admin_address, admin_key
 
-algod_client = algod.AlgodClient(algod_token, algod_address_testnet)
-indexer_client = indexer.IndexerClient(indexer_token, indexer_address_testnet)
+algod_client = algod.AlgodClient(algod_token, algod_address_betanet)
+indexer_client = indexer.IndexerClient(indexer_token, indexer_address_betanet)
 
 def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", clawback=""):
   """
@@ -52,7 +52,7 @@ def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", cl
     confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
   except Exception as err:
     print(err)
-    return False
+    return
 
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
@@ -77,7 +77,7 @@ def claim_nft(address, asset_id):
   
   if (verify_opt_in(address=address, asset_id=asset_id)) == False:
     print("Asset with Id: {} has not yet been opted into by Wallet: {}. Please opt-in and try again").format(asset_id, address)
-    return False
+    return 
    
   sp = algod_client.suggested_params()
  
@@ -99,7 +99,7 @@ def claim_nft(address, asset_id):
 
   except Exception as err:
     print(err)
-    return False
+    return
 
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 #seting up virtual environment
 
 echo "setting up a virtual environment"
