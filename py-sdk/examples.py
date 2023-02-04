@@ -16,6 +16,10 @@ from nft_sdk_devnet import create_nft, update_nft
 
 '''
 
+'''
+Note that only the create_nft and update_nft functions can be called in a private development network (devnet)
+'''
+
 #steps:
 
 '''
@@ -85,15 +89,12 @@ comment out the create NFT function after ruing it the first time and then uncom
 '''
 optional step:
 
-update_nft(asset_id, manager, reserve, freeze, clawback)
+update_nft(asset_id, metadata_url)
 
 This function can be called to update an NFT
 
 1. asset_id: argument of type int, the ID of the NFT to be updated  
-2. manager: the manager address
-3. reserve: the reserve address
-4. freeze: the freeze address
-5. clawback: the clawback address
+2. metadata_url: argument of type string, the new metadata url that contains the changes to the NFT
 
 Return: the asset ID (success) or False (failure)
 '''

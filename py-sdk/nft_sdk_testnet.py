@@ -113,20 +113,23 @@ def create_account():
   
   return address
  
-def update_nft(asset_id, manager, reserve, freeze, clawback):
+def update_nft(asset_id, metadata_url):
   current_round = algod_client.status.get("lastRound")
   sp = algod_client.suggested_params(current_round, "").get("lastRound")
+  
+  metadata_bytes = json.dumps(metadata_url).encode()
+  metadata_base_64 = base64.b64encode(metadata_bytes).decode()
+
+  print("Your NFT metadata base64 hash: {}".format(metadata_base_64))
+
  
   txn = transaction.AssetConfigTxn(
     sender=admin_address,
     sp=sp,
     default_frozen=False,
     index=asset_id,
-    manager=manager,
-    strict_empty_address_check=False,
-    reserve=reserve,
-    freeze=freeze,
-    clawback=clawback,  
+    url=metadata_url,
+    metadata_hash=metadata_bytes 
   )
   
     # sign transaction

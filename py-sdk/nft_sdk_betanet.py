@@ -52,7 +52,7 @@ def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", cl
     confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
   except Exception as err:
     print(err)
-    return
+    return False
 
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
@@ -77,7 +77,7 @@ def claim_nft(address, asset_id):
   
   if (verify_opt_in(address=address, asset_id=asset_id)) == False:
     print("Asset with Id: {} has not yet been opted into by Wallet: {}. Please opt-in and try again").format(asset_id, address)
-    return 
+    return False
    
   sp = algod_client.suggested_params()
  
@@ -99,7 +99,7 @@ def claim_nft(address, asset_id):
 
   except Exception as err:
     print(err)
-    return
+    return False
 
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
@@ -113,20 +113,22 @@ def create_account():
   
   return address
  
-def update_nft(asset_id, manager, reserve, freeze, clawback):
+def update_nft(asset_id, metadata_url):
   current_round = algod_client.status.get("lastRound")
   sp = algod_client.suggested_params(current_round, "").get("lastRound")
+  
+  metadata_bytes = json.dumps(metadata_url).encode()
+  metadata_base_64 = base64.b64encode(metadata_bytes).decode()
+
+  print("Your NFT metadata base64 hash: {}".format(metadata_base_64))
  
   txn = transaction.AssetConfigTxn(
     sender=admin_address,
     sp=sp,
     default_frozen=False,
     index=asset_id,
-    manager=manager,
-    strict_empty_address_check=False,
-    reserve=reserve,
-    freeze=freeze,
-    clawback=clawback,  
+    url=metadata_url,
+    metadata_hash=metadata_bytes  
   )
   
     # sign transaction
@@ -142,7 +144,7 @@ def update_nft(asset_id, manager, reserve, freeze, clawback):
     confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
   except Exception as err:
     print(err)
-    return
+    return False
 
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
