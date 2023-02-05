@@ -71,10 +71,6 @@ def create_nft(name, symbol, metadata_url):
     print("Transaction information: {}".format(
         json.dumps(confirmed_txn, indent=4)))
 
-    # write the asset index to an environment file
-    f = open('asset_devnet.txt', 'w+')
-    f.write(f'{confirmed_txn["asset-index"]}')
-    f.close()
     
     return confirmed_txn["asset-index"]
     
@@ -114,10 +110,5 @@ def update_nft(asset_id, metadata_url):
     print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
     print("Asset ID: {}".format(confirmed_txn["asset-index"]))
-
-    # write the asset index to an environment file
-    f = open('devnet-asset-id.txt', 'w+')
-    f.write(f'{confirmed_txn["asset-index"]}')
-    f.close()
 
     return confirmed_txn["asset-index"]

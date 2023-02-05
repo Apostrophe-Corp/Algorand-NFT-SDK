@@ -1,26 +1,30 @@
-import base64
+import hashlib
 import json
 from algosdk.v2client import algod, indexer
 from algosdk import transaction, account, mnemonic
-from config import algod_token, indexer_token, algod_address_mainnet, indexer_address_mainnet, admin_address, admin_key
 
-algod_client = algod.AlgodClient(algod_token, algod_address_mainnet)
-indexer_client = indexer.IndexerClient(indexer_token, indexer_address_mainnet)
+algod_address_testnet = "https://testnet-api.algonode.cloud"
+indexer_address_testnet = "https://testnet-idx.algonode.cloud"
+algod_token = ""
+indexer_token = ""
+admin_address = "W4BERQ52RZILAKXNJJ6X5FNY3ASIAK3OV6KWX7DRTLKHXE7HNNGCO5OVUA"
+admin_key = "3d43u0uywHWdackLRDwgZA8cBqpb2FxUJECl36fhcvS3AkjDuo5QsCrtSn1+lbjYJIArbq+Va/xxmtR7k+drTA=="
 
-def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", clawback=""):
+algod_client = algod.AlgodClient(algod_token, algod_address_testnet)
+indexer_client = indexer.IndexerClient(indexer_token, indexer_address_testnet)
+
+def create_nft(name, symbol, metadata_url, reserve="", freeze="", clawback=""):
   """
   returns the id of the created NFT
   """
- 
-  metadata_bytes = json.dumps(metadata_url).encode()
-  metadata_base_64 = base64.b64encode(metadata_bytes).decode()
-
-  print("Your NFT metadata base64 hash: {}".format(metadata_base_64))
+  metadata_hash = hashlib.new("sha256", metadata_url.encode())
+  metadata_bytes = metadata_hash.digest()
+  
+  print("Your metadata hash: {}".format(metadata_hash.hexdigest()))
 
   # build unsigned transaction
 
-  current_round = algod_client.status.get("lastRound")
-  sp = algod_client.suggested_params(current_round, "").get("lastRound")
+  sp = algod_client.suggested_params()
 
   txn = transaction.AssetConfigTxn(
     sender=admin_address,
@@ -30,13 +34,13 @@ def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", cl
     default_frozen=False,
     unit_name=symbol,
     asset_name=name,
-    manager=manager,
+    manager=admin_address,
     strict_empty_address_check=False,
     reserve=reserve,
     freeze=freeze,
     clawback=clawback,
-    url=url,
-    metadata_hash=metadata_bytes  
+    url=metadata_url,
+    metadata_hash=metadata_bytes 
   )
 
   # sign transaction
@@ -58,20 +62,15 @@ def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", cl
 
   print("Asset ID: {}".format(confirmed_txn["asset-index"]))
 
-  # write the asset index to an environment file
-  f = open('testnet-asset-id.txt', 'w+')
-  f.write(f'{confirmed_txn["asset-index"]}')
-  f.close()
-  
   return confirmed_txn["asset-index"]
  
- def verify_opt_in(address, asset_id):
-   account_info = indexer_client.lookup_account_assets(address=address, asset_id=asset_id)
-   
-   if account_info.get("assets")[0].get("asset-id") == asset_id:
-     return True
-   else:
-     return False
+def verify_opt_in(address, asset_id):
+  account_info = indexer_client.lookup_account_assets(address=address, asset_id=asset_id)
+  
+  if account_info.get("assets")[0].get("asset-id") == asset_id:
+    return True
+  else:
+    return False
  
 def claim_nft(address, asset_id):
   
@@ -95,7 +94,7 @@ def claim_nft(address, asset_id):
   print("Successfully sent transaction with txID: {}".format(txid))
 
   try:
-    confirmed_txn = transaction.wait_for_confirmation(algod_algod_client, txid, 4)
+    confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)
 
   except Exception as err:
     print(err)
@@ -113,25 +112,21 @@ def create_account():
   
   return address
  
-def update_nft(asset_id, metadata_url):
-  current_round = algod_client.status.get("lastRound")
-  sp = algod_client.suggested_params(current_round, "").get("lastRound")
-  
-  metadata_bytes = json.dumps(metadata_url).encode()
-  metadata_base_64 = base64.b64encode(metadata_bytes).decode()
-
-  print("Your NFT metadata base64 hash: {}".format(metadata_base_64))
- 
+def update_nft(asset_id, reserve="", clawback="", freeze=""):
+  sp = algod_client.suggested_params()
+   
   txn = transaction.AssetConfigTxn(
     sender=admin_address,
     sp=sp,
     default_frozen=False,
     index=asset_id,
-    url=metadata_url,
-    metadata_hash=metadata_bytes  
+    manager=admin_address,
+    reserve=reserve,
+    freeze=freeze,
+    clawback=clawback,    
   )
   
-  # sign transaction
+    # sign transaction
   signed_txn = txn.sign(admin_key)
 
   #submit transaction
@@ -150,11 +145,6 @@ def update_nft(asset_id, metadata_url):
 
   print("Asset ID: {}".format(confirmed_txn["asset-index"]))
 
-  # write the asset index to an environment file
-  f = open('testnet-asset-id.txt', 'w+')
-  f.write(f'{confirmed_txn["asset-index"]}')
-  f.close()
-  
   return confirmed_txn["asset-index"]
  
  

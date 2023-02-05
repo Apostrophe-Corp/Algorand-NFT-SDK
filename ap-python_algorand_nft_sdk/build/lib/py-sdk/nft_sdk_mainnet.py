@@ -2,10 +2,10 @@ import base64
 import json
 from algosdk.v2client import algod, indexer
 from algosdk import transaction, account, mnemonic
-from config import algod_token, indexer_token, algod_address_testnet, indexer_address_testnet, admin_address, admin_key
+from config import algod_token, indexer_token, algod_address_mainnet, indexer_address_mainnet, admin_address, admin_key
 
-algod_client = algod.AlgodClient(algod_token, algod_address_testnet)
-indexer_client = indexer.IndexerClient(indexer_token, indexer_address_testnet)
+algod_client = algod.AlgodClient(algod_token, algod_address_mainnet)
+indexer_client = indexer.IndexerClient(indexer_token, indexer_address_mainnet)
 
 def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", clawback=""):
   """
@@ -57,11 +57,6 @@ def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", cl
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
   print("Asset ID: {}".format(confirmed_txn["asset-index"]))
-
-  # write the asset index to an environment file
-  f = open('testnet-asset-id.txt', 'w+')
-  f.write(f'{confirmed_txn["asset-index"]}')
-  f.close()
   
   return confirmed_txn["asset-index"]
  
@@ -121,7 +116,6 @@ def update_nft(asset_id, metadata_url):
   metadata_base_64 = base64.b64encode(metadata_bytes).decode()
 
   print("Your NFT metadata base64 hash: {}".format(metadata_base_64))
-
  
   txn = transaction.AssetConfigTxn(
     sender=admin_address,
@@ -129,10 +123,10 @@ def update_nft(asset_id, metadata_url):
     default_frozen=False,
     index=asset_id,
     url=metadata_url,
-    metadata_hash=metadata_bytes 
+    metadata_hash=metadata_bytes  
   )
   
-    # sign transaction
+  # sign transaction
   signed_txn = txn.sign(admin_key)
 
   #submit transaction
@@ -145,16 +139,12 @@ def update_nft(asset_id, metadata_url):
     confirmed_txn = transaction.wait_for_confirmation(algod_client, txid, 4)  
   except Exception as err:
     print(err)
-    return
+    return False
 
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
   print("Asset ID: {}".format(confirmed_txn["asset-index"]))
 
-  # write the asset index to an environment file
-  f = open('testnet-asset-id.txt', 'w+')
-  f.write(f'{confirmed_txn["asset-index"]}')
-  f.close()
   
   return confirmed_txn["asset-index"]
  

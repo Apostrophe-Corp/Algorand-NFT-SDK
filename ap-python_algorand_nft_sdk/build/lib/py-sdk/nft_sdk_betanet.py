@@ -58,11 +58,6 @@ def create_nft(name, symbol, metadata_url, manager="", reserve="", freeze="", cl
 
   print("Asset ID: {}".format(confirmed_txn["asset-index"]))
 
-  # write the asset index to an environment file
-  f = open('testnet-asset-id.txt', 'w+')
-  f.write(f'{confirmed_txn["asset-index"]}')
-  f.close()
-  
   return confirmed_txn["asset-index"]
  
  def verify_opt_in(address, asset_id):
@@ -149,11 +144,6 @@ def update_nft(asset_id, metadata_url):
   print("Transaction information: {}".format(json.dumps(confirmed_txn, indent=4)))
 
   print("Asset ID: {}".format(confirmed_txn["asset-index"]))
-
-  # write the asset index to an environment file
-  f = open('testnet-asset-id.txt', 'w+')
-  f.write(f'{confirmed_txn["asset-index"]}')
-  f.close()
   
   return confirmed_txn["asset-index"]
  
