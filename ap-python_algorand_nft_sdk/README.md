@@ -209,3 +209,24 @@ In this example, we update the <> of the NFT.
 ```{python}
 nft_sdk.create_nft(<>)
 ```
+## Deployment
+<include pypi link or project link>
+
+## Authors
+
+Owolabi Adeyemi
+Emmanuel Agbavwe
+
+## Acknowledgements 
+
+Barnji
+  
+Nullun
+
+Nick Stanford
+  
+Joe Polony
+
+JP Miller
+  
+The ALgorand foundation and the awesome Green House Hacks Team
