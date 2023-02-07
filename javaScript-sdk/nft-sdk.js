@@ -39,36 +39,6 @@ const createAccount = function () {
   }
 };
 
-// Function used to wait for a tx confirmation
-const waitForConfirmation = async function (algodclient, txId) {
- let response = await algodclient.status().do();
- let lastround = response["last-round"];
- while (true) {
-  const pendingInfo = await algodclient.pendingTransactionInformation(txId).do();
-  if (pendingInfo["confirmed-round"] !== null && pendingInfo["confirmed-round"] > 0) {
-   //Got the completed Transaction
-   console.log("Transaction " + txId + " confirmed in round " + pendingInfo["confirmed-round"]);
-   break;
-  }
-  lastround++;
-  await algodclient.statusAfterBlock(lastround).do();
- }
-};
-
-// Function used to print asset holding for account and assetid
-const printAssetHolding = async function (algodclient, account, assetid) {
- let accountInfo = await indexerClient.searchAccounts().assetID(assetIndex).do();
-
- for (idx = 0; idx < accountInfo['assets'].length; idx++) {
-  let scrutinizedAsset = ['accounts'][idx][account];
-  if (scrutinizedAsset['asset-id'] == assetid) {
-   let myassetholding = JSON.stringify(scrutinizedAsset, undefined, 2);
-   console.log("assetholdinginfo = " + myassetholding);
-   break;
-  }
- }
-};
-
 
 async function createNft (name, symbol, address, imageUrl, reserve, clawback, freeze) {
 
@@ -107,10 +77,16 @@ async function createNft (name, symbol, address, imageUrl, reserve, clawback, fr
  console.log("Transaction : " + tx.txId);
  let assetID = null;
  // wait for transaction to be confirmed
- await waitForConfirmation(algodClient, tx.txId);
+ // await waitForConfirmation(algodClient, tx.txId);
  // Get the new asset's information from the creator account
  let ptx = await algodClient.pendingTransactionInformation(tx.txId).do();
  assetID = ptx["asset-index"];
  console.log("AssetID = " + assetID);
 
+ // todo verify optin
+
+ // todo transfer nft
+
 }
+
+// todo update nft function 
