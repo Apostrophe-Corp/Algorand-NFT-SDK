@@ -103,4 +103,14 @@ async function createNft (name, symbol, address, imageUrl, reserve, clawback, fr
 
  const rawSignedTxn = txn.signTxn(adminKey);
 
+ let tx = (await algodClient.sendRawTransaction(rawSignedTxn).do());
+ console.log("Transaction : " + tx.txId);
+ let assetID = null;
+ // wait for transaction to be confirmed
+ await waitForConfirmation(algodClient, tx.txId);
+ // Get the new asset's information from the creator account
+ let ptx = await algodClient.pendingTransactionInformation(tx.txId).do();
+ assetID = ptx["asset-index"];
+ console.log("AssetID = " + assetID);
+
 }
